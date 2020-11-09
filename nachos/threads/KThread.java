@@ -312,7 +312,7 @@ public class KThread {
     }
 
     /**
-     * Create the idle thread. Whenever there are no threads ready to be run, and
+     * Create the idle thread. Whenever finish()there are no threads ready to be run, and
      * <tt>runNextThread()</tt> is called, it will run the idle thread. The idle
      * thread must never block, and it will only be allowed to run when all other
      * threads are blocked.

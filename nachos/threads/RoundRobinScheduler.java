@@ -73,10 +73,11 @@ public class RoundRobinScheduler extends Scheduler {
 		public void print() {
 			Lib.assertTrue(Machine.interrupt().disabled());
 
+			System.out.println("Printing the threads waiting on the threadqueue");
 			for (Iterator i = waitQueue.iterator(); i.hasNext();)
-				System.out.print((KThread) i.next() + " ");
+				System.out.println((KThread) i.next() + " ");
 		}
 
-		private LinkedList<KThread> waitQueue = new LinkedList<KThread>();
+		private LinkedList<KThread> waitQueue = new LinkedList<KThread>();		
 	}
 }
