@@ -195,15 +195,27 @@ public class KThread {
         Machine.autoGrader().finishingCurrentThread();
 
         Lib.assertTrue(toBeDestroyed == null);
+
         toBeDestroyed = currentThread;
 
+        // System.out.println(currentThread.toString());
+
         // make any previously waited calling thread ready
-        if (callingThreadQueue != null) {
-            KThread k = callingThreadQueue.nextThread();
-            // k is null when size(callingThreadQueue) = 0
-            if (k != null) {
-                k.ready();
-            }
+        // if (currentThread.callingThreadQueue != null) {
+        //     KThread k = currentThread.callingThreadQueue.nextThread();
+        //     // k is null when size(callingThreadQueue) = 0
+        //     if (k != null) {
+        //         k.ready();
+        //         // k = callingThreadQueue.nextThread();
+        //     }
+        // }
+
+        // make the callingThread ready which was joined before
+        KThread k = currentThread.callingThread;
+        if(k != null)
+        {
+            currentThread.callingThread = null;
+            k.ready();
         }
 
         currentThread.status = statusFinished;
@@ -255,7 +267,7 @@ public class KThread {
         Lib.debug(dbgThread, "Sleeping thread: " + currentThread.toString());
 
         Lib.assertTrue(Machine.interrupt().disabled());
-
+        
         if (currentThread.status != statusFinished)
             currentThread.status = statusBlocked;
 
@@ -272,6 +284,9 @@ public class KThread {
         Lib.assertTrue(Machine.interrupt().disabled());
         Lib.assertTrue(status != statusReady);
 
+        // if (!KThread.currentThread.getName().equals("main") && status == statusBlocked) {
+        //     System.out.println(KThread.currentThread() + " at ready " + Machine.timer().getTime());    
+        // }
         status = statusReady;
         if (this != idleThread)
             readyQueue.waitForAccess(this);
@@ -291,23 +306,30 @@ public class KThread {
 
         // this -> this thread that needs to finished first
         // currentThread -> the thread that needs to halt
+
+        System.out.println(this.toString() + " is joining with " + currentThread.toString());
+        // if (status != statusFinished) {
+        //     boolean intStatus = Machine.interrupt().disable();
+        //      // callingThreadQueue will keep track of the calling threads (need to be halted)
+        //     if (callingThreadQueue == null) {
+        //         callingThreadQueue = ThreadedKernel.scheduler.newThreadQueue(false);
+        //         callingThreadQueue.acquire(this);
+        //     }
+        //     // call ready if this thread has just been created
+        //     if (this.status == statusNew) {
+        //         this.ready();
+        //     }
+        //     callingThreadQueue.waitForAccess(currentThread);
+        //     KThread.sleep();
+        //     Machine.interrupt().restore(intStatus);
+        // }
         boolean intStatus = Machine.interrupt().disable();
-
-        // callingThreadQueue will keep track of the calling threads (need to be halted)
-        if (callingThreadQueue == null) {
-            callingThreadQueue = ThreadedKernel.scheduler.newThreadQueue(false);
-            callingThreadQueue.acquire(this);
-        }
-
-        if (status != statusFinished) {
-            // call ready if this thread has just been created
-            if (this.status == statusNew) {
-                this.ready();
-            }
-            callingThreadQueue.waitForAccess(currentThread);
+        if(this.status != statusFinished)
+        {
+            this.callingThread = currentThread;
+            // System.out.println("here");
             KThread.sleep();
-        }
-
+        } 
         Machine.interrupt().restore(intStatus);
     }
 
@@ -420,7 +442,9 @@ public class KThread {
 
         public void run() {
             // currentThread.yield();
-            for (int i = 0; i < 5; i++) {
+            int z;
+            z = which == 1? 50: 20;
+            for (int i = 0; i < z; i++) {
                 System.out.println("*** thread " + currentThread.getName() + " looped " + i + " times");
                 KThread.yield();
             }
@@ -435,14 +459,17 @@ public class KThread {
     public static void selfTest() {
         Lib.debug(dbgThread, "Enter KThread.selfTest");
 
+        // new PingTest(0).run();
         KThread t1 = new KThread(new PingTest(1)).setName("abc");
         t1.fork();
-        t1.join();
+        // t1.join();
         KThread t2 = new KThread(new PingTest(2)).setName("def");
         t2.fork();
-        // t2.join();
-
-        new PingTest(0).run();
+        
+        t1.join();
+        // t1.join();
+        t2.join();
+        // System.out.println("hello hello");
     }
 
     private static final char dbgThread = 't';
@@ -482,5 +509,6 @@ public class KThread {
     private static KThread toBeDestroyed = null;
     private static KThread idleThread = null;
 
-    private static ThreadQueue callingThreadQueue = null;
+    private ThreadQueue callingThreadQueue = null;
+    private KThread callingThread = null;
 }

@@ -83,8 +83,10 @@ public class Condition {
 
         Semaphore waiter = new Semaphore(0);
         waitQueue.add(waiter);
+        
         conditionLock.release();
         waiter.P();
+        //blocked
         conditionLock.acquire();
     }
 
@@ -95,7 +97,7 @@ public class Condition {
     public void wake() {
         Lib.assertTrue(conditionLock.isHeldByCurrentThread());
 
-        System.out.println("in wake " + waitQueue);
+        // System.out.println("in wake " + waitQueue);
         if (!waitQueue.isEmpty())
             ((Semaphore) waitQueue.removeFirst()).V();
     }

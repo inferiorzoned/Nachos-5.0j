@@ -249,7 +249,9 @@ public class Condition2 {
 				System.out.println("Test Case 5: Complete");
 				testLock.release();
         } } ).setName("Test 5");
-		wakeAll2.fork();
+        wakeAll2.fork();
+        wakeAll2.join();
+        wake2.join();
 
     }
     private Lock conditionLock;
