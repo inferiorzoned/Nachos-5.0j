@@ -33,13 +33,13 @@ public class Alarm {
      * run.
      */
     public void timerInterrupt() {
-        System.out.println("Clock time: " + Machine.timer().getTime() + ", waitingQueue size:" + pq.size());
+        // System.out.println("Clock time: " + Machine.timer().getTime() + ", waitingQueue size:" + pq.size());
 
         boolean intStatus = Machine.interrupt().disable();
 
         while(!pq.isEmpty() && pq.peek().wakeupTime <= Machine.timer().getTime()) {
             KThread k = pq.poll().t;
-            System.out.println("Making " + k.getName() + " ready at " + Machine.timer().getTime());
+           //  System.out.println("Making " + k.getName() + " ready at " + Machine.timer().getTime());
             k.ready();
         }
         KThread.yield();
@@ -63,7 +63,7 @@ public class Alarm {
         
         long wakeupTime = Machine.timer().getTime() + x;
         
-        System.out.println(KThread.currentThread().getName() + " is waiting until " + wakeupTime);
+        // System.out.println(KThread.currentThread().getName() + " is waiting until " + wakeupTime);
         waitingThread thread = new waitingThread(KThread.currentThread(), wakeupTime);
         pq.add(thread);
 
@@ -87,9 +87,9 @@ public class Alarm {
         @Override
         public void run() {
             int t = (int)((Math.random() * 1000));
-            System.out.println(KThread.currentThread().getName() + " started, time is " + Machine.timer().getTime());
+            // System.out.println(KThread.currentThread().getName() + " started, time is " + Machine.timer().getTime());
             ThreadedKernel.alarm.waitUntil(t);
-            System.out.println(KThread.currentThread().getName() + " finishing, time is " + Machine.timer().getTime());
+            // System.out.println(KThread.currentThread().getName() + " finishing, time is " + Machine.timer().getTime());
         }
     }
 
