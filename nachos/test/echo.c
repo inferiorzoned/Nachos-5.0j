@@ -49,7 +49,7 @@ int main(int argc, char** argv)
     printf("Return for join on pid 3 : %d\n", num);
     printf("\n------------END CHECKING INVALID JOIN CALLS--------------\n");
     
-    halt();
+    // halt();
    
     printf("Halt is not working!!\n");
    

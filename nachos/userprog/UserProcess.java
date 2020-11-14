@@ -453,7 +453,8 @@ public class UserProcess {
     /**
      * Handle the halt() system call.
      */
-    private int handleHalt() {
+    protected int handleHalt() {
+        if (UserKernel.rootProcess != this) return 0;
 
         Machine.halt();
 
@@ -462,7 +463,7 @@ public class UserProcess {
     }
 
     //added by Shahrar
-	private int handleRead(int fileDescriptor, int address, int count){
+	protected int handleRead(int fileDescriptor, int address, int count){
     	int result = -1;
     	if(fileDescriptor != 0 || count < 0){
     		return result;
@@ -481,7 +482,7 @@ public class UserProcess {
 		return writeVirtualMemory(address, buff, 0, size);
 	}
 
-	private int handleWrite(int fileDescriptor, int address, int count){
+	protected int handleWrite(int fileDescriptor, int address, int count){
     	int result = -1;
     	if(fileDescriptor != 1 || count < 0){
 			return result;
@@ -501,7 +502,7 @@ public class UserProcess {
 		}
     }
     
-    private int handleExec(int fileVAddr, int argc, int argvAddr) {
+    protected int handleExec(int fileVAddr, int argc, int argvAddr) {
 
         String fileName = readVirtualMemoryString(fileVAddr, FILE_NAME_MAX_LEN);
 
@@ -541,7 +542,7 @@ public class UserProcess {
         return child.pid;
     }
 
-    private int handleJoin(int processId, int statusVAddr) {
+    protected int handleJoin(int processId, int statusVAddr) {
         if (processId < 0) {
             Lib.debug(dbgProcess, "handleJoin(): processId is negative.");
             return -1;
@@ -589,7 +590,7 @@ public class UserProcess {
         }
     }
 
-    private int handleExit(int status) {
+    protected int handleExit(int status) {
         if (this.parent != null) {
             lock.acquire();
             parent.childStatus.put(pid, status);
@@ -598,7 +599,9 @@ public class UserProcess {
 
         unloadSections();
 
-        childProcesses.forEach(process -> process.parent = null);
+        for (UserProcess process : childProcesses) {
+            process.parent = null;
+        }
         childProcesses.clear();
 
         if (pid == 0) Kernel.kernel.terminate();

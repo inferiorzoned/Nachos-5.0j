@@ -101,6 +101,7 @@ public class UserKernel extends ThreadedKernel {
         super.run();
 
         UserProcess process = UserProcess.newUserProcess();
+        rootProcess = process;
 
         String shellProgram = Machine.getShellProgramName();
         Lib.assertTrue(process.execute(shellProgram, new String[] {}));
@@ -124,6 +125,8 @@ public class UserKernel extends ThreadedKernel {
     private static LinkedList<Integer> pageList = new LinkedList<>();
 
     private static Lock lock;
+
+    public static UserProcess rootProcess;
 
     public static void releasePage (int ppn) {
         Lib.assertTrue(ppn >= 0 && ppn < Machine.processor().getNumPhysPages());
