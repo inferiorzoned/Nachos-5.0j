@@ -32,13 +32,17 @@ public class Communicator {
      */
     public void speak(int word) {
         lock.acquire();
-    
-        while (msgCount == 1) {
+
+        speakerCount++;
+
+        while (listenerCount == 0 || msgCount == 1) {
             speakVar.sleep();
         }
+
         w = word;
         msgCount = 1;
         listenVar.wake();
+        speakerCount--;
         lock.release();
     }
 
@@ -50,12 +54,16 @@ public class Communicator {
      */
     public int listen() {
         lock.acquire();
-        
-        while (msgCount == 0) {
+        speakVar.wake();
+        listenerCount++;
+
+        while (listenerCount > 1 || msgCount == 0) {
             listenVar.sleep();
         }
         int listened = w;
         msgCount = 0;
+        listenerCount--;
+        // speakVar.wakeAll();
         speakVar.wake();
         lock.release();
         return listened;
