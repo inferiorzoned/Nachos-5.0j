@@ -18,6 +18,8 @@ public class Communicator {
         speakVar = new Condition2(lock);
         listenVar = new Condition2(lock);
         msgCount = 0;
+        speakerCount = 0;
+        listenerCount = 0;
     }
 
     /**
@@ -170,4 +172,6 @@ public class Communicator {
     Condition2 speakVar;
     Condition2 listenVar;
     int msgCount;
+    int speakerCount;
+	int listenerCount;
 }
