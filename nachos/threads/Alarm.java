@@ -63,7 +63,7 @@ public class Alarm {
         
         long wakeupTime = Machine.timer().getTime() + x;
         
-        // System.out.println(KThread.currentThread().getName() + " is waiting until " + wakeupTime);
+        System.out.println(KThread.currentThread().getName() + " is waiting until " + wakeupTime);
         waitingThread thread = new waitingThread(KThread.currentThread(), wakeupTime);
         pq.add(thread);
 
@@ -87,9 +87,9 @@ public class Alarm {
         @Override
         public void run() {
             int t = (int)((Math.random() * 1000));
-            // System.out.println(KThread.currentThread().getName() + " started, time is " + Machine.timer().getTime());
+            System.out.println(KThread.currentThread().getName() + " has just started, time is " + Machine.timer().getTime());
             ThreadedKernel.alarm.waitUntil(t);
-            // System.out.println(KThread.currentThread().getName() + " finishing, time is " + Machine.timer().getTime());
+            System.out.println(KThread.currentThread().getName() + " is finishing, time is " + Machine.timer().getTime());
         }
     }
 
