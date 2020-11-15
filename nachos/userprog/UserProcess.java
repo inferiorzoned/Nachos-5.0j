@@ -570,9 +570,11 @@ public class UserProcess {
 
         childProcesses.remove(child);
 
-        lock.acquire();
+        // lock.acquire();
+        Machine.interrupt().disable();
         Integer status = childStatus.get(child.pid);
-        lock.release();
+        Machine.interrupt().enable();
+        // lock.release();
 
         if (status == null) {
             Lib.debug(dbgProcess, "handleJoin(): Exit status not found.");
@@ -592,9 +594,11 @@ public class UserProcess {
 
     protected int handleExit(int status) {
         if (this.parent != null) {
-            lock.acquire();
+            // lock.acquire();
+            Machine.interrupt().disable();
             parent.childStatus.put(pid, status);
-            lock.release();
+            Machine.interrupt().enable();
+            // lock.release();
         }
 
         unloadSections();

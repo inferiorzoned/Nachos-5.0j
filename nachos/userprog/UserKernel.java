@@ -130,22 +130,27 @@ public class UserKernel extends ThreadedKernel {
 
     public static void releasePage (int ppn) {
         Lib.assertTrue(ppn >= 0 && ppn < Machine.processor().getNumPhysPages());
-        lock.acquire();
+        // lock.acquire();
+        Machine.interrupt().disable();
         pageList.add(ppn);
-        lock.release();
+        Machine.interrupt().enable();
+        // lock.release();
     }
 
     public static int [] allocatePages (int numPages) {
-        lock.acquire();
+        // lock.acquire();
+        Machine.interrupt().disable();
         int [] allocated = new int[numPages];
         if (numPages > pageList.size()) {
-            lock.release();
+            Machine.interrupt().enable();
+            // lock.release();
             return null;
         }
         for (int i = 0; i < numPages; i++) {
             allocated[i] = pageList.removeFirst();
         }
-        lock.release();
+        Machine.interrupt().enable();
+        // lock.release();
         return allocated;
     }
 }
