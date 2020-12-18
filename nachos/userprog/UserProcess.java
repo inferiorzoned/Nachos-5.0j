@@ -409,7 +409,7 @@ public class UserProcess {
      * @param isWrite   Is this page for write?
      * @return  The TranslationEntry for the vpn. If not found, returns null
      */
-    private TranslationEntry getTranslationEntry(int vpn, boolean isWrite) {
+    protected TranslationEntry getTranslationEntry(int vpn, boolean isWrite) {
         // Virtual page number must be non-negative and less than number of pages occupied by this process
         if (vpn < 0 || vpn >= numPages) return null;
         // Retrieve translation entry for vpn
@@ -453,8 +453,7 @@ public class UserProcess {
     /**
      * Handle the halt() system call.
      */
-    protected int handleHalt() {
-        if (UserKernel.rootProcess != this) return 0;
+    private int handleHalt() {
 
         Machine.halt();
 
@@ -463,7 +462,7 @@ public class UserProcess {
     }
 
     //added by Shahrar
-	protected int handleRead(int fileDescriptor, int address, int count){
+	private int handleRead(int fileDescriptor, int address, int count){
     	int result = -1;
     	if(fileDescriptor != 0 || count < 0){
     		return result;
@@ -482,7 +481,7 @@ public class UserProcess {
 		return writeVirtualMemory(address, buff, 0, size);
 	}
 
-	protected int handleWrite(int fileDescriptor, int address, int count){
+	private int handleWrite(int fileDescriptor, int address, int count){
     	int result = -1;
     	if(fileDescriptor != 1 || count < 0){
 			return result;
@@ -502,7 +501,7 @@ public class UserProcess {
 		}
     }
     
-    protected int handleExec(int fileVAddr, int argc, int argvAddr) {
+    private int handleExec(int fileVAddr, int argc, int argvAddr) {
 
         String fileName = readVirtualMemoryString(fileVAddr, FILE_NAME_MAX_LEN);
 
@@ -542,7 +541,7 @@ public class UserProcess {
         return child.pid;
     }
 
-    protected int handleJoin(int processId, int statusVAddr) {
+    private int handleJoin(int processId, int statusVAddr) {
         if (processId < 0) {
             Lib.debug(dbgProcess, "handleJoin(): processId is negative.");
             return -1;
@@ -570,11 +569,9 @@ public class UserProcess {
 
         childProcesses.remove(child);
 
-        // lock.acquire();
-        Machine.interrupt().disable();
+        lock.acquire();
         Integer status = childStatus.get(child.pid);
-        Machine.interrupt().enable();
-        // lock.release();
+        lock.release();
 
         if (status == null) {
             Lib.debug(dbgProcess, "handleJoin(): Exit status not found.");
@@ -592,20 +589,16 @@ public class UserProcess {
         }
     }
 
-    protected int handleExit(int status) {
+    private int handleExit(int status) {
         if (this.parent != null) {
-            // lock.acquire();
-            Machine.interrupt().disable();
+            lock.acquire();
             parent.childStatus.put(pid, status);
-            Machine.interrupt().enable();
-            // lock.release();
+            lock.release();
         }
 
         unloadSections();
 
-        for (UserProcess process : childProcesses) {
-            process.parent = null;
-        }
+        childProcesses.forEach(process -> process.parent = null);
         childProcesses.clear();
 
         if (pid == 0) Kernel.kernel.terminate();
@@ -696,9 +689,8 @@ public class UserProcess {
             default:
                 Lib.debug(dbgProcess, "Unknown syscall " + syscall);
                 Lib.assertNotReached("Unknown system call!");
-                handleExit(-1);
-                return -1;
         }
+        return 0;
     }
 
     /**
@@ -748,7 +740,7 @@ public class UserProcess {
     private LinkedList<UserProcess> childProcesses = new LinkedList<>();
 
     protected int pid;
-    private static int processCounter = 0;
+    protected static int processCounter = 0;
 
     protected UThread userThread;
     protected UserProcess parent = null; 

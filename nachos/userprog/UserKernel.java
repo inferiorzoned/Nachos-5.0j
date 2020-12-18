@@ -43,19 +43,19 @@ public class UserKernel extends ThreadedKernel {
      * Test the console device.
      */
     public void selfTest() {
-        // super.selfTest();
+        super.selfTest();
 
-        // System.out.println("Testing the console device. Typed characters");
-        // System.out.println("will be echoed until q is typed.");
+        System.out.println("Testing the console device. Typed characters");
+        System.out.println("will be echoed until q is typed.");
 
-        // char c;
+        char c;
 
-        // do {
-        //     c = (char) console.readByte(true);
-        //     console.writeByte(c);
-        // } while (c != 'q');
+        do {
+            c = (char) console.readByte(true);
+            console.writeByte(c);
+        } while (c != 'q');
 
-        // System.out.println("");
+        System.out.println("");
     }
 
     /**
@@ -101,7 +101,6 @@ public class UserKernel extends ThreadedKernel {
         super.run();
 
         UserProcess process = UserProcess.newUserProcess();
-        rootProcess = process;
 
         String shellProgram = Machine.getShellProgramName();
         Lib.assertTrue(process.execute(shellProgram, new String[] {}));
@@ -122,35 +121,28 @@ public class UserKernel extends ThreadedKernel {
     // dummy variables to make javac smarter
     private static Coff dummy1 = null;
 
-    private static LinkedList<Integer> pageList = new LinkedList<>();
+    protected static LinkedList<Integer> pageList = new LinkedList<>();
 
     private static Lock lock;
 
-    public static UserProcess rootProcess;
-
     public static void releasePage (int ppn) {
         Lib.assertTrue(ppn >= 0 && ppn < Machine.processor().getNumPhysPages());
-        // lock.acquire();
         Machine.interrupt().disable();
         pageList.add(ppn);
         Machine.interrupt().enable();
-        // lock.release();
     }
 
     public static int [] allocatePages (int numPages) {
-        // lock.acquire();
         Machine.interrupt().disable();
         int [] allocated = new int[numPages];
         if (numPages > pageList.size()) {
             Machine.interrupt().enable();
-            // lock.release();
             return null;
         }
         for (int i = 0; i < numPages; i++) {
             allocated[i] = pageList.removeFirst();
         }
         Machine.interrupt().enable();
-        // lock.release();
         return allocated;
     }
 }

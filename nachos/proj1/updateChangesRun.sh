@@ -1,5 +1,5 @@
 #!/bin/bash
 
-gmake clean 
-gmake
+make clean 
+make
 nachos

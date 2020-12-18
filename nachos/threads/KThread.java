@@ -466,7 +466,7 @@ public class KThread {
         KThread t2 = new KThread(new PingTest(2)).setName("def");
         t2.fork();
         
-        t1.join();
+        // t1.join();
         // t1.join();
         t2.join();
         // System.out.println("hello hello");
